@@ -1,0 +1,3 @@
+[workspace]
+default-members = ["invoke", "invoke_derive"]
+members = ["invoke", "invoke_derive", "invoke_tests"]
