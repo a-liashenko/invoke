@@ -27,6 +27,7 @@ pub fn generate_meta(ctx: &InvokeCtx) -> TokenStream {
             }
 
             fn get_method_id(name: &str) -> Option<u16> {
+                #[allow(unreachable_code)]
                 match name {
                     #(#fns_names => Some(#idx),)*
                     _ => None

@@ -3,6 +3,10 @@ mod tests {
     use invoke::{invoke, Invoke, InvokeError, InvokeExt};
     use std::cell::RefCell;
 
+    struct TestWarn;
+    #[invoke]
+    impl TestWarn {}
+
     #[derive(Default)]
     struct Test {
         test_static: RefCell<bool>,

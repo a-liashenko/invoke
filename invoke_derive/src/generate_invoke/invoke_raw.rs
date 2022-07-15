@@ -37,7 +37,6 @@ fn gen_fn_call(func: &FunctionDef) -> quote::__private::TokenStream {
                 .join(",");
 
             quote::__private::TokenStream::from_str(&range).unwrap()
-            // quote::quote! { #stream }
         }
     } else {
         quote::quote! {}
@@ -58,15 +57,16 @@ fn invoke_raw_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
     }
 
     let stream = quote::quote! {
-            match fn_id {
-                #(
-                    #ids => {
-                        #unsafe_cast
-                        self.#names(#fn_args);
-                    }
-                )*
-                _ => return Err(::invoke::InvokeError::UnknownMethod),
-            };
+        #[allow(unreachable_code)]
+        match fn_id {
+            #(
+                #ids => {
+                    #unsafe_cast
+                    self.#names(#fn_args);
+                }
+            )*
+            _ => return Err(::invoke::InvokeError::UnknownMethod),
+        };
     };
 
     stream
@@ -77,6 +77,8 @@ pub fn invoke_raw(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let stream = quote::quote! {
         unsafe fn invoke_raw_ptr(&self, fn_id: u16, args: *const ::std::ffi::c_void) -> Result<(), ::invoke::InvokeError> {
             #invoke_impl
+
+            #[allow(unreachable_code)]
             Ok(())
         }
     };
@@ -89,6 +91,8 @@ pub fn invoke_raw_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let stream = quote::quote! {
         unsafe fn invoke_raw_ptr_mut(&mut self, fn_id: u16, args: *const ::std::ffi::c_void) -> Result<(), ::invoke::InvokeError> {
             #invoke_impl
+
+            #[allow(unreachable_code)]
             Ok(())
         }
     };

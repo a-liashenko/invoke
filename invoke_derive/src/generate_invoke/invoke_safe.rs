@@ -72,15 +72,16 @@ fn invoke_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
     }
 
     let stream = quote::quote! {
-            match fn_id {
-                #(
-                    #ids => {
-                        #safe_cast
-                        self.#names(#fn_args);
-                    }
-                )*
-                _ => return Err(::invoke::InvokeError::UnknownMethod),
-            };
+        match fn_id {
+            #(
+                #ids => {
+                    #safe_cast
+                    self.#names(#fn_args);
+                }
+            )*
+            _ => return Err(::invoke::InvokeError::UnknownMethod),
+        };
+
     };
 
     stream
@@ -91,6 +92,8 @@ pub fn invoke(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let stream = quote::quote! {
         fn invoke(&self, fn_id: u16, args: Option<&dyn std::any::Any>) -> Result<(), ::invoke::InvokeError> {
             #invoke_impl
+
+            #[allow(unreachable_code)]
             Ok(())
         }
     };
@@ -103,6 +106,8 @@ pub fn invoke_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let stream = quote::quote! {
         fn invoke_mut(&mut self, fn_id: u16, args: Option<&dyn std::any::Any>) -> Result<(), ::invoke::InvokeError> {
             #invoke_impl
+
+            #[allow(unreachable_code)]
             Ok(())
         }
     };
