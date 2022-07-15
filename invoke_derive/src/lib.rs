@@ -1,10 +1,12 @@
 mod function_def;
 mod generate_ids;
 mod generate_invoke;
+mod generate_meta;
 mod invoke_ctx;
 
 use generate_ids::generate_ids;
 use generate_invoke::generate_invoke;
+use generate_meta::generate_meta;
 use invoke_ctx::InvokeCtx;
 use proc_macro::TokenStream;
 use quote::ToTokens;
@@ -22,8 +24,10 @@ pub fn invoke(_args: TokenStream, token: TokenStream) -> TokenStream {
 
     let enums = generate_ids(&ctx);
     let invoke = generate_invoke(&ctx);
+    let meta = generate_meta(&ctx);
 
     base.extend(enums);
     base.extend(invoke);
+    base.extend(meta);
     base
 }
