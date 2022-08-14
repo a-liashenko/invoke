@@ -44,6 +44,6 @@ impl FunctionDef {
         let id = self.id;
         let ident = &self.id_ident;
 
-        quote::quote! { const #ident: u16 = #id; }
+        quote::quote! { const #ident: ::invoke::FnId = #id; }
     }
 }
