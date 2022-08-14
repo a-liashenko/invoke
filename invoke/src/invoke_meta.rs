@@ -1,18 +1,13 @@
+use crate::FnId;
 use std::ffi::c_void;
 
 pub trait InvokeMeta {
-    /// # Safety
-    ///
-    /// TODO
-    fn get_method_id_raw_ptr(func_ptr: *const c_void) -> Option<u16>;
-    fn get_method_id(name: &str) -> Option<u16>;
+    fn get_method_id_raw_ptr(func_ptr: *const c_void) -> Option<FnId>;
+    fn get_method_id(name: &str) -> Option<FnId>;
 }
 
 pub trait InvokeMetaExt {
-    /// # Safety
-    ///
-    /// TODO
-    fn get_method_id_raw<Fn>(ptr: &Fn) -> Option<u16>;
+    fn get_method_id_raw<Fn>(ptr: &Fn) -> Option<FnId>;
 }
 
 impl<T: InvokeMeta + ?Sized> InvokeMetaExt for T {

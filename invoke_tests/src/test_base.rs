@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use invoke::{invoke, Invoke, InvokeError, InvokeExt};
+    use invoke::{invoke, Invoke, InvokeError, InvokeExt, InvokeMut, InvokeMutExt};
     use std::cell::RefCell;
 
     struct TestWarn;
@@ -82,7 +82,7 @@ mod tests {
             assert_eq!(test.test_two_args.borrow().0, two_args.0);
             assert_eq!(test.test_two_args.borrow().1, two_args.1);
 
-            test.invoke_raw_mut(test_meta::TEST_MUT_ID, Some(&one_arg))
+            test.invoke_mut_raw(test_meta::TEST_MUT_ID, Some(&one_arg))
                 .expect("Failed to invoke test_mut");
             assert_eq!(test.test_mut, one_arg);
         }
