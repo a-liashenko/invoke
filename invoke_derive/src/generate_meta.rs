@@ -6,13 +6,16 @@ use crate::invoke_ctx::InvokeCtx;
 pub fn generate_meta(ctx: &InvokeCtx) -> TokenStream {
     let name_ident = format_ident!("{}", ctx.name);
 
-    let fns: Vec<_> = ctx.immutable.iter().map(|v| &v.name_ident).collect();
-    let fns_names: Vec<_> = ctx
-        .immutable
-        .iter()
-        .map(|v| format!("{}::{}", ctx.name, v.name))
-        .collect();
-    let idx: Vec<_> = ctx.immutable.iter().map(|v| v.id.name.clone()).collect();
+    let capacity = ctx.mutable.len() + ctx.immutable.len();
+    let mut fns = Vec::with_capacity(capacity);
+    let mut fns_names = Vec::with_capacity(capacity);
+    let mut idx = Vec::with_capacity(capacity);
+
+    for func in ctx.immutable.iter().chain(ctx.mutable.iter()) {
+        fns.push(&func.name_ident);
+        fns_names.push(format!("{}::{}", ctx.name, func.name));
+        idx.push(&func.id.name);
+    }
 
     quote::quote! {
         impl invoke::InvokeMeta for #name_ident {
@@ -32,6 +35,16 @@ pub fn generate_meta(ctx: &InvokeCtx) -> TokenStream {
                     #(#fns_names => Some(&Self::#idx),)*
                     _ => None
                 }
+            }
+
+            fn get_method_name(id: &invoke::FnId) -> Option<&'static str> {
+                #(
+                    if id.eq(&Self::#idx) {
+                        return Some(#fns_names);
+                    }
+                )*
+
+                return None;
             }
         }
     }

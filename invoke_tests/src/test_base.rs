@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use invoke::{invoke, FnId, Invoke, InvokeError, InvokeExt, InvokeMut, InvokeMutExt};
+    use invoke::{
+        invoke, FnId, Invoke, InvokeError, InvokeExt, InvokeMeta, InvokeMetaExt, InvokeMut,
+        InvokeMutExt,
+    };
     use std::cell::RefCell;
 
     struct TestWarn;
@@ -122,5 +125,17 @@ mod tests {
         let err = test.invoke(&Test::TEST_ONE_ARG_ID, None);
         assert!(err.is_err());
         assert!(matches!(err.unwrap_err(), InvokeError::NoneArgs));
+    }
+
+    #[test]
+    fn test_meta() {
+        let method = Test::get_method_id("Test::test_static");
+        assert_eq!(method, Some(&Test::TEST_STATIC_ID));
+
+        let method = Test::get_method_id_raw(&Test::test_static);
+        assert_eq!(method, Some(&Test::TEST_STATIC_ID));
+
+        let name = Test::get_method_name(&Test::TEST_STATIC_ID);
+        assert_eq!(name, Some("Test::test_static"));
     }
 }

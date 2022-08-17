@@ -4,6 +4,8 @@ use std::ffi::c_void;
 pub trait InvokeMeta {
     fn get_method_id_raw_ptr(func_ptr: *const c_void) -> Option<&'static FnId>;
     fn get_method_id(name: &str) -> Option<&'static FnId>;
+
+    fn get_method_name(id: &FnId) -> Option<&'static str>;
 }
 
 pub trait InvokeMetaExt {
