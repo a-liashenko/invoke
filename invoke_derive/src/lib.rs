@@ -3,6 +3,7 @@ mod generate_ids;
 mod generate_invoke;
 mod generate_meta;
 mod invoke_ctx;
+mod uuid_impl;
 
 use generate_ids::generate_ids;
 use generate_invoke::generate_invoke;
@@ -22,11 +23,11 @@ pub fn invoke(_args: TokenStream, token: TokenStream) -> TokenStream {
 
     let mut base: TokenStream = block.into_token_stream().into();
 
-    let enums = generate_ids(&ctx);
+    let ids = generate_ids(&ctx);
     let invoke = generate_invoke(&ctx);
     let meta = generate_meta(&ctx);
 
-    base.extend(enums);
+    base.extend(ids);
     base.extend(invoke);
     base.extend(meta);
     base

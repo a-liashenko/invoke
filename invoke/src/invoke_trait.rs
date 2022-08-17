@@ -39,11 +39,11 @@ pub trait InvokeExt {
     /// # Safety
     ///
     /// TODO
-    unsafe fn invoke_raw<Args>(&self, fn_id: u16, args: Option<&Args>) -> Result<(), InvokeError>;
+    unsafe fn invoke_raw<Args>(&self, fn_id: FnId, args: Option<&Args>) -> Result<(), InvokeError>;
 }
 
 impl<T: Invoke + ?Sized> InvokeExt for T {
-    unsafe fn invoke_raw<Args>(&self, fn_id: u16, args: Option<&Args>) -> Result<(), InvokeError> {
+    unsafe fn invoke_raw<Args>(&self, fn_id: FnId, args: Option<&Args>) -> Result<(), InvokeError> {
         match args {
             Some(v) => {
                 let ptr: *const c_void = v as *const _ as *const _;
@@ -60,7 +60,7 @@ pub trait InvokeMutExt {
     /// TODO
     unsafe fn invoke_mut_raw<Args>(
         &mut self,
-        fn_id: u16,
+        fn_id: FnId,
         args: Option<&Args>,
     ) -> Result<(), InvokeError>;
 }
@@ -68,7 +68,7 @@ pub trait InvokeMutExt {
 impl<T: InvokeMut + ?Sized> InvokeMutExt for T {
     unsafe fn invoke_mut_raw<Args>(
         &mut self,
-        fn_id: u16,
+        fn_id: FnId,
         args: Option<&Args>,
     ) -> Result<(), InvokeError> {
         match args {

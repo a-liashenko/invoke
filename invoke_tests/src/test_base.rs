@@ -100,15 +100,16 @@ mod tests {
 
     #[test]
     fn test_bad_method() {
+        let invalid: invoke::FnId = [0; 16];
         let test = Test::default();
         let val = 10_u16;
 
-        let err = test.invoke(255_u16, Some(&val));
+        let err = test.invoke(invalid, Some(&val));
         assert!(err.is_err());
         assert!(matches!(err.unwrap_err(), InvokeError::UnknownMethod));
 
         unsafe {
-            let err = test.invoke_raw(255_u16, Some(&val));
+            let err = test.invoke_raw(invalid, Some(&val));
             assert!(err.is_err());
             assert!(matches!(err.unwrap_err(), InvokeError::UnknownMethod));
         }

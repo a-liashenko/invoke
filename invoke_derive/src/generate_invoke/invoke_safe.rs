@@ -90,7 +90,7 @@ fn invoke_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
 pub fn invoke(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_impl(&ctx.immutable);
     let stream = quote::quote! {
-        fn invoke(&self, fn_id: ::invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), ::invoke::InvokeError> {
+        fn invoke(&self, fn_id: invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]
@@ -104,7 +104,7 @@ pub fn invoke(ctx: &InvokeCtx) -> quote::__private::TokenStream {
 pub fn invoke_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_impl(&ctx.mutable);
     let stream = quote::quote! {
-        fn invoke_mut(&mut self, fn_id: ::invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), ::invoke::InvokeError> {
+        fn invoke_mut(&mut self, fn_id: invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]

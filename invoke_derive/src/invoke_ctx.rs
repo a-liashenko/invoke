@@ -4,6 +4,7 @@ use syn::spanned::Spanned;
 use syn::{Attribute, FnArg, Ident, ImplItem, ImplItemMethod, ItemImpl, Signature, Token, Type};
 
 use crate::function_def::FunctionDef;
+use crate::uuid_impl::Uuid;
 
 enum FnType {
     General,
@@ -34,8 +35,9 @@ impl InvokeCtx {
             _ => None,
         });
 
-        let mut id: u16 = 0;
         for f in methods {
+            let id = Uuid::new();
+
             let fn_type = validate_function(f)?;
             if let FnType::General = fn_type {
                 continue;
@@ -49,8 +51,6 @@ impl InvokeCtx {
                 FnType::Immutable => ctx.immutable.push(def),
                 _ => unreachable!(),
             }
-
-            id += 1;
         }
         Ok(ctx)
     }

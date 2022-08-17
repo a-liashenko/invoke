@@ -1,3 +1,4 @@
+use crate::uuid_impl::Uuid;
 use quote::format_ident;
 use syn::{punctuated::Punctuated, Ident, Token, Type};
 
@@ -5,7 +6,7 @@ pub type ArgTypes = Punctuated<Type, Token![,]>;
 
 pub struct FunctionDef {
     // TODO: Replace with random numbers?
-    pub id: u16,
+    pub id: Uuid,
     pub name: String,
     pub id_ident: Ident,
     pub name_ident: Ident,
@@ -26,7 +27,7 @@ impl std::fmt::Debug for FunctionDef {
 }
 
 impl FunctionDef {
-    pub fn new(id: u16, name: &Ident, args: Option<ArgTypes>, amount: u8) -> Self {
+    pub fn new(id: Uuid, name: &Ident, args: Option<ArgTypes>, amount: u8) -> Self {
         use convert_case::*;
         let ident = format_ident!("{}", format!("{}_ID", name).to_case(Case::ScreamingSnake));
 
@@ -44,6 +45,6 @@ impl FunctionDef {
         let id = self.id;
         let ident = &self.id_ident;
 
-        quote::quote! { const #ident: ::invoke::FnId = #id; }
+        quote::quote! { const #ident: invoke::FnId = #id; }
     }
 }

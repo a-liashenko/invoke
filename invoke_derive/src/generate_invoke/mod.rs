@@ -14,12 +14,12 @@ pub fn generate_invoke(ctx: &InvokeCtx) -> TokenStream {
     let invoke_mut = invoke_safe::invoke_mut(ctx);
 
     let stream = quote::quote! {
-        impl ::invoke::Invoke for #struct_ident {
+        impl invoke::Invoke for #struct_ident {
             #invoke
             #invoke_raw
         }
 
-        impl ::invoke::InvokeMut for #struct_ident {
+        impl invoke::InvokeMut for #struct_ident {
             #invoke_mut
             #invoke_raw_mut
         }

@@ -11,7 +11,7 @@ pub trait InvokeMetaExt {
 }
 
 impl<T: InvokeMeta + ?Sized> InvokeMetaExt for T {
-    fn get_method_id_raw<Fn>(ptr: &Fn) -> Option<u16> {
+    fn get_method_id_raw<Fn>(ptr: &Fn) -> Option<FnId> {
         T::get_method_id_raw_ptr(ptr as *const _ as *const c_void)
     }
 }

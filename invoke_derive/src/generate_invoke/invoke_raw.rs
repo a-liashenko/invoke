@@ -75,7 +75,7 @@ fn invoke_raw_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
 pub fn invoke_raw(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_raw_impl(&ctx.immutable);
     let stream = quote::quote! {
-        unsafe fn invoke_ptr(&self, fn_id: ::invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), ::invoke::InvokeError> {
+        unsafe fn invoke_ptr(&self, fn_id: invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]
@@ -89,7 +89,7 @@ pub fn invoke_raw(ctx: &InvokeCtx) -> quote::__private::TokenStream {
 pub fn invoke_raw_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_raw_impl(&ctx.mutable);
     let stream = quote::quote! {
-        unsafe fn invoke_mut_ptr(&mut self, fn_id: ::invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), ::invoke::InvokeError> {
+        unsafe fn invoke_mut_ptr(&mut self, fn_id: invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]
