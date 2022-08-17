@@ -1,14 +1,11 @@
-use crate::uuid_impl::Uuid;
-use quote::format_ident;
+use crate::function_id::FunctionId;
 use syn::{punctuated::Punctuated, Ident, Token, Type};
 
 pub type ArgTypes = Punctuated<Type, Token![,]>;
 
 pub struct FunctionDef {
-    // TODO: Replace with random numbers?
-    pub id: Uuid,
+    pub id: FunctionId,
     pub name: String,
-    pub id_ident: Ident,
     pub name_ident: Ident,
     pub args: Option<ArgTypes>,
     pub args_amount: u8,
@@ -19,7 +16,6 @@ impl std::fmt::Debug for FunctionDef {
         f.debug_struct("FunctionDef")
             .field("id", &self.id)
             .field("name", &self.name)
-            .field("id_ident", &self.id_ident)
             .field("name_ident", &self.name_ident)
             .field("args_amount", &self.args_amount)
             .finish()
@@ -27,14 +23,10 @@ impl std::fmt::Debug for FunctionDef {
 }
 
 impl FunctionDef {
-    pub fn new(id: Uuid, name: &Ident, args: Option<ArgTypes>, amount: u8) -> Self {
-        use convert_case::*;
-        let ident = format_ident!("{}", format!("{}_ID", name).to_case(Case::ScreamingSnake));
-
+    pub fn new(id: FunctionId, name: &Ident, args: Option<ArgTypes>, amount: u8) -> Self {
         Self {
             id,
             name_ident: name.clone(),
-            id_ident: ident,
             name: name.to_string(),
             args,
             args_amount: amount,
@@ -42,9 +34,9 @@ impl FunctionDef {
     }
 
     pub fn to_enum_entry(&self) -> quote::__private::TokenStream {
-        let id = self.id;
-        let ident = &self.id_ident;
+        let id = self.id.get_id();
+        let ident = &self.id.name;
 
-        quote::quote! { const #ident: invoke::FnId = #id; }
+        quote::quote! { const #ident: invoke::FnId = invoke::FnId(#id); }
     }
 }

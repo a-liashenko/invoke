@@ -10,7 +10,7 @@ fn gen_any_cast(func: &FunctionDef) -> quote::__private::TokenStream {
             let check = quote::quote! {
                 let args = match args {
                     Some(v) => v,
-                    None => return Err(::invoke::InvokeError::NoneArgs),
+                    None => return Err(invoke::InvokeError::NoneArgs),
                 };
             };
 
@@ -24,7 +24,7 @@ fn gen_any_cast(func: &FunctionDef) -> quote::__private::TokenStream {
                     #check
                     let args: &#tuple = match args.downcast_ref() {
                         Some(v) => v,
-                        None => return Err(::invoke::InvokeError::BadArgs),
+                        None => return Err(invoke::InvokeError::BadArgs),
                     };
                 }
             } else {
@@ -33,7 +33,7 @@ fn gen_any_cast(func: &FunctionDef) -> quote::__private::TokenStream {
                     #check
                     let args: &#arg = match args.downcast_ref() {
                         Some(v) => v,
-                        None => return Err(::invoke::InvokeError::BadArgs),
+                        None => return Err(invoke::InvokeError::BadArgs),
                     };
                 }
             }
@@ -65,23 +65,21 @@ fn invoke_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
     let mut fn_args = Vec::with_capacity(fns.len());
 
     for f in fns {
-        ids.push(f.id);
+        ids.push(f.id.name.clone());
         names.push(&f.name_ident);
         safe_cast.push(gen_any_cast(f));
         fn_args.push(gen_fn_call(f));
     }
 
     let stream = quote::quote! {
-        match fn_id {
-            #(
-                #ids => {
-                    #safe_cast
-                    self.#names(#fn_args);
-                }
-            )*
-            _ => return Err(::invoke::InvokeError::UnknownMethod),
-        };
-
+        #(
+            if invoke::memx::memeq(fn_id.as_bytes(), &Self::#ids.as_bytes()) {
+                #safe_cast
+                self.#names(#fn_args);
+                return Ok(())
+            }
+        )*
+        return Err(invoke::InvokeError::UnknownMethod);
     };
 
     stream
@@ -90,7 +88,7 @@ fn invoke_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
 pub fn invoke(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_impl(&ctx.immutable);
     let stream = quote::quote! {
-        fn invoke(&self, fn_id: invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
+        fn invoke(&self, fn_id: &invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]
@@ -104,7 +102,7 @@ pub fn invoke(ctx: &InvokeCtx) -> quote::__private::TokenStream {
 pub fn invoke_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_impl(&ctx.mutable);
     let stream = quote::quote! {
-        fn invoke_mut(&mut self, fn_id: invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
+        fn invoke_mut(&mut self, fn_id: &invoke::FnId, args: Option<&dyn std::any::Any>) -> Result<(), invoke::InvokeError> {
             #invoke_impl
 
             #[allow(unreachable_code)]

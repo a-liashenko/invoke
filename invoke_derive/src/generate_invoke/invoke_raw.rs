@@ -1,6 +1,5 @@
-use std::str::FromStr;
-
 use crate::{function_def::FunctionDef, invoke_ctx::InvokeCtx};
+use std::str::FromStr;
 use syn::TypeTuple;
 
 fn gen_unsafe_cast(func: &FunctionDef) -> quote::__private::TokenStream {
@@ -50,23 +49,21 @@ fn invoke_raw_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
     let mut fn_args = Vec::with_capacity(fns.len());
 
     for f in fns {
-        ids.push(f.id);
+        ids.push(f.id.name.clone());
         names.push(&f.name_ident);
         unsafe_cast.push(gen_unsafe_cast(f));
         fn_args.push(gen_fn_call(f));
     }
 
     let stream = quote::quote! {
-        #[allow(unreachable_code)]
-        match fn_id {
             #(
-                #ids => {
+                if invoke::memx::memeq(fn_id.as_bytes(), &Self::#ids.as_bytes()) {
                     #unsafe_cast
                     self.#names(#fn_args);
+                    return Ok(())
                 }
             )*
-            _ => return Err(::invoke::InvokeError::UnknownMethod),
-        };
+            return Err(invoke::InvokeError::UnknownMethod);
     };
 
     stream
@@ -75,11 +72,8 @@ fn invoke_raw_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
 pub fn invoke_raw(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_raw_impl(&ctx.immutable);
     let stream = quote::quote! {
-        unsafe fn invoke_ptr(&self, fn_id: invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
+        unsafe fn invoke_ptr(&self, fn_id: &invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
             #invoke_impl
-
-            #[allow(unreachable_code)]
-            Ok(())
         }
     };
 
@@ -89,11 +83,8 @@ pub fn invoke_raw(ctx: &InvokeCtx) -> quote::__private::TokenStream {
 pub fn invoke_raw_mut(ctx: &InvokeCtx) -> quote::__private::TokenStream {
     let invoke_impl = invoke_raw_impl(&ctx.mutable);
     let stream = quote::quote! {
-        unsafe fn invoke_mut_ptr(&mut self, fn_id: invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
+        unsafe fn invoke_mut_ptr(&mut self, fn_id: &invoke::FnId, args: *const ::std::ffi::c_void) -> Result<(), invoke::InvokeError> {
             #invoke_impl
-
-            #[allow(unreachable_code)]
-            Ok(())
         }
     };
 

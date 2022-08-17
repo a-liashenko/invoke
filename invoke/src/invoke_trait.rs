@@ -2,7 +2,7 @@ use crate::{FnId, InvokeError};
 use std::{any::Any, ffi::c_void, ptr::null};
 
 pub trait Invoke {
-    fn invoke(&self, fn_id: FnId, args: Option<&dyn Any>) -> Result<(), InvokeError>;
+    fn invoke(&self, fn_id: &FnId, args: Option<&dyn Any>) -> Result<(), InvokeError>;
 
     /// .
     ///
@@ -13,11 +13,11 @@ pub trait Invoke {
     /// # Safety
     ///
     /// .
-    unsafe fn invoke_ptr(&self, fn_id: FnId, args: *const c_void) -> Result<(), InvokeError>;
+    unsafe fn invoke_ptr(&self, fn_id: &FnId, args: *const c_void) -> Result<(), InvokeError>;
 }
 
 pub trait InvokeMut {
-    fn invoke_mut(&mut self, fn_id: FnId, args: Option<&dyn Any>) -> Result<(), InvokeError>;
+    fn invoke_mut(&mut self, fn_id: &FnId, args: Option<&dyn Any>) -> Result<(), InvokeError>;
 
     /// .
     ///
@@ -30,7 +30,7 @@ pub trait InvokeMut {
     /// .
     unsafe fn invoke_mut_ptr(
         &mut self,
-        fn_id: FnId,
+        fn_id: &FnId,
         args: *const c_void,
     ) -> Result<(), InvokeError>;
 }
@@ -39,11 +39,16 @@ pub trait InvokeExt {
     /// # Safety
     ///
     /// TODO
-    unsafe fn invoke_raw<Args>(&self, fn_id: FnId, args: Option<&Args>) -> Result<(), InvokeError>;
+    unsafe fn invoke_raw<Args>(&self, fn_id: &FnId, args: Option<&Args>)
+        -> Result<(), InvokeError>;
 }
 
 impl<T: Invoke + ?Sized> InvokeExt for T {
-    unsafe fn invoke_raw<Args>(&self, fn_id: FnId, args: Option<&Args>) -> Result<(), InvokeError> {
+    unsafe fn invoke_raw<Args>(
+        &self,
+        fn_id: &FnId,
+        args: Option<&Args>,
+    ) -> Result<(), InvokeError> {
         match args {
             Some(v) => {
                 let ptr: *const c_void = v as *const _ as *const _;
@@ -60,7 +65,7 @@ pub trait InvokeMutExt {
     /// TODO
     unsafe fn invoke_mut_raw<Args>(
         &mut self,
-        fn_id: FnId,
+        fn_id: &FnId,
         args: Option<&Args>,
     ) -> Result<(), InvokeError>;
 }
@@ -68,7 +73,7 @@ pub trait InvokeMutExt {
 impl<T: InvokeMut + ?Sized> InvokeMutExt for T {
     unsafe fn invoke_mut_raw<Args>(
         &mut self,
-        fn_id: FnId,
+        fn_id: &FnId,
         args: Option<&Args>,
     ) -> Result<(), InvokeError> {
         match args {

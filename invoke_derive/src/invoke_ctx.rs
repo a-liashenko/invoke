@@ -4,7 +4,7 @@ use syn::spanned::Spanned;
 use syn::{Attribute, FnArg, Ident, ImplItem, ImplItemMethod, ItemImpl, Signature, Token, Type};
 
 use crate::function_def::FunctionDef;
-use crate::uuid_impl::Uuid;
+use crate::function_id::FunctionId;
 
 enum FnType {
     General,
@@ -36,13 +36,12 @@ impl InvokeCtx {
         });
 
         for f in methods {
-            let id = Uuid::new();
-
             let fn_type = validate_function(f)?;
             if let FnType::General = fn_type {
                 continue;
             }
 
+            let id = FunctionId::new(&f.sig.ident);
             let (args_amount, args) = parse_args(&f.sig.inputs)?;
             let def = FunctionDef::new(id, &f.sig.ident, args, args_amount);
 

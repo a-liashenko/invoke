@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use invoke::{invoke, Invoke, InvokeError, InvokeExt, InvokeMut, InvokeMutExt};
+    use invoke::{invoke, FnId, Invoke, InvokeError, InvokeExt, InvokeMut, InvokeMutExt};
     use std::cell::RefCell;
 
     struct TestWarn;
@@ -42,22 +42,22 @@ mod tests {
     fn test_safe() {
         let mut test = Test::default();
 
-        test.invoke(Test::TEST_STATIC_ID, None)
+        test.invoke(&Test::TEST_STATIC_ID, None)
             .expect("Failed to invoke static");
         assert!(*test.test_static.borrow());
 
         let one_arg = 10_u32;
-        test.invoke(Test::TEST_ONE_ARG_ID, Some(&one_arg))
+        test.invoke(&Test::TEST_ONE_ARG_ID, Some(&one_arg))
             .expect("Failed to invoke one arg");
         assert_eq!(*test.test_one_arg.borrow(), one_arg);
 
         let two_args = (10, "Test me".to_owned());
-        test.invoke(Test::TEST_TWO_ARGS_ID, Some(&two_args))
+        test.invoke(&Test::TEST_TWO_ARGS_ID, Some(&two_args))
             .expect("Failed to invoke two args");
         assert_eq!(test.test_two_args.borrow().0, two_args.0);
         assert_eq!(test.test_two_args.borrow().1, two_args.1);
 
-        test.invoke_mut(Test::TEST_MUT_ID, Some(&one_arg))
+        test.invoke_mut(&Test::TEST_MUT_ID, Some(&one_arg))
             .expect("Failed to invoke test_mut");
         assert_eq!(test.test_mut, one_arg);
     }
@@ -67,22 +67,22 @@ mod tests {
         unsafe {
             let mut test = Test::default();
 
-            test.invoke_raw::<()>(Test::TEST_STATIC_ID, None)
+            test.invoke_raw::<()>(&Test::TEST_STATIC_ID, None)
                 .expect("Failed to invoke static");
             assert!(*test.test_static.borrow());
 
             let one_arg = 10_u32;
-            test.invoke_raw(Test::TEST_ONE_ARG_ID, Some(&one_arg))
+            test.invoke_raw(&Test::TEST_ONE_ARG_ID, Some(&one_arg))
                 .expect("Failed to invoke one arg");
             assert_eq!(*test.test_one_arg.borrow(), one_arg);
 
             let two_args = (10, "Test me".to_owned());
-            test.invoke_raw(Test::TEST_TWO_ARGS_ID, Some(&two_args))
+            test.invoke_raw(&Test::TEST_TWO_ARGS_ID, Some(&two_args))
                 .expect("Failed to invoke two args");
             assert_eq!(test.test_two_args.borrow().0, two_args.0);
             assert_eq!(test.test_two_args.borrow().1, two_args.1);
 
-            test.invoke_mut_raw(Test::TEST_MUT_ID, Some(&one_arg))
+            test.invoke_mut_raw(&Test::TEST_MUT_ID, Some(&one_arg))
                 .expect("Failed to invoke test_mut");
             assert_eq!(test.test_mut, one_arg);
         }
@@ -93,23 +93,23 @@ mod tests {
         let test = Test::default();
 
         let val = 10_u16;
-        let err = test.invoke(Test::TEST_ONE_ARG_ID, Some(&val));
+        let err = test.invoke(&Test::TEST_ONE_ARG_ID, Some(&val));
         assert!(err.is_err());
         assert!(matches!(err.unwrap_err(), InvokeError::BadArgs));
     }
 
     #[test]
     fn test_bad_method() {
-        let invalid: invoke::FnId = [0; 16];
+        let invalid: invoke::FnId = FnId([0; 16]);
         let test = Test::default();
         let val = 10_u16;
 
-        let err = test.invoke(invalid, Some(&val));
+        let err = test.invoke(&invalid, Some(&val));
         assert!(err.is_err());
         assert!(matches!(err.unwrap_err(), InvokeError::UnknownMethod));
 
         unsafe {
-            let err = test.invoke_raw(invalid, Some(&val));
+            let err = test.invoke_raw(&invalid, Some(&val));
             assert!(err.is_err());
             assert!(matches!(err.unwrap_err(), InvokeError::UnknownMethod));
         }
@@ -119,7 +119,7 @@ mod tests {
     fn test_none_args() {
         let test = Test::default();
 
-        let err = test.invoke(Test::TEST_ONE_ARG_ID, None);
+        let err = test.invoke(&Test::TEST_ONE_ARG_ID, None);
         assert!(err.is_err());
         assert!(matches!(err.unwrap_err(), InvokeError::NoneArgs));
     }
