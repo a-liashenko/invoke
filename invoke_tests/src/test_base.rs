@@ -1,9 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use invoke::{
-        invoke, FnId, Invoke, InvokeError, InvokeExt, InvokeMeta, InvokeMetaExt, InvokeMut,
-        InvokeMutExt,
-    };
+    use invoke::{invoke, FnId, Invoke, InvokeError, InvokeExt, InvokeMut, InvokeMutExt};
     use std::cell::RefCell;
 
     struct TestWarn;
@@ -129,13 +126,33 @@ mod tests {
 
     #[test]
     fn test_meta() {
+        use invoke::{InvokeMeta, InvokeMetaExt};
+
         let method = Test::get_method_id("Test::test_static");
         assert_eq!(method, Some(&Test::TEST_STATIC_ID));
 
         let method = Test::get_method_id_raw(&Test::test_static);
         assert_eq!(method, Some(&Test::TEST_STATIC_ID));
 
+        let method = Test::get_method_id_raw_ptr(&Test::test_static as *const _ as *const _);
+        assert_eq!(method, Some(&Test::TEST_STATIC_ID));
+
         let name = Test::get_method_name(&Test::TEST_STATIC_ID);
+        assert_eq!(name, Some("Test::test_static"));
+    }
+
+    #[test]
+    fn test_meta_self() {
+        use invoke::InvokeMetaSelf;
+
+        let test = Test::default();
+        let method = test.get_method_id("Test::test_static");
+        assert_eq!(method, Some(&Test::TEST_STATIC_ID));
+
+        let method = test.get_method_id_raw_ptr(&Test::test_static as *const _ as *const _);
+        assert_eq!(method, Some(&Test::TEST_STATIC_ID));
+
+        let name = test.get_method_name(&Test::TEST_STATIC_ID);
         assert_eq!(name, Some("Test::test_static"));
     }
 }

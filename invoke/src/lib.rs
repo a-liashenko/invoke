@@ -4,7 +4,7 @@ mod invoke_trait;
 
 pub use functiond_id::FnId;
 pub use invoke_derive::invoke;
-pub use invoke_meta::{InvokeMeta, InvokeMetaExt};
+pub use invoke_meta::{InvokeMeta, InvokeMetaExt, InvokeMetaSelf};
 pub use invoke_trait::{Invoke, InvokeExt, InvokeMut, InvokeMutExt};
 
 #[derive(Debug)]
