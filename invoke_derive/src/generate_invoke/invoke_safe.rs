@@ -73,7 +73,7 @@ fn invoke_impl(fns: &[FunctionDef]) -> quote::__private::TokenStream {
 
     let stream = quote::quote! {
         #(
-            if invoke::memx::memeq(fn_id.as_bytes(), &Self::#ids.as_bytes()) {
+            if fn_id.eq(&Self::#ids) {
                 #safe_cast
                 self.#names(#fn_args);
                 return Ok(())
